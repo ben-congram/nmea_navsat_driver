@@ -194,15 +194,15 @@ class Ros2NMEADriver(Node):
 
             self.fix_pub.publish(current_fix)
 
-            if not math.isnan(data['utc_time']):
-                current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time']).to_msg()
+            if not math.isnan(data['utc_time'][0]):
+                current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time'][0]).to_msg()
                 self.last_valid_fix_time = current_time_ref
                 self.time_ref_pub.publish(current_time_ref)
 
             # Also publish GPGGA msg
             current_gga = Gpgga()
-            if not math.isnan(data['utc_time']):
-                current_gga.utc_seconds = 1.0 * data['utc_time']
+            if not math.isnan(data['utc_time'][0]):
+                current_gga.utc_seconds = 1.0 * data['utc_time'][0] + 1e-9 * data['utc_time'][1]
             current_gga.lat = latitude
             current_gga.lon = longitude
             current_gga.lat_dir = data['latitude_direction']
@@ -254,8 +254,8 @@ class Ros2NMEADriver(Node):
 
                 self.fix_pub.publish(current_fix)
 
-                if not math.isnan(data['utc_time']):
-                    current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time']).to_msg()
+                if not math.isnan(data['utc_time'][0]):
+                    current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time'][0]).to_msg()
                     self.time_ref_pub.publish(current_time_ref)
 
             # Publish velocity from RMC regardless, since GGA doesn't provide it.
