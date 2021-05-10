@@ -36,6 +36,7 @@ import rclpy
 
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix, NavSatStatus, TimeReference
+from nmea_msgs.msg import Gpgga
 from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from transforms3d.euler import euler2quat as quaternion_from_euler
 from libnmea_navsat_driver.checksum_utils import check_nmea_checksum
@@ -50,6 +51,7 @@ class Ros2NMEADriver(Node):
         self.vel_pub = self.create_publisher(TwistStamped, 'vel')
         self.heading_pub = self.create_publisher(QuaternionStamped, 'heading')
         self.time_ref_pub = self.create_publisher(TimeReference, 'time_reference')
+        self.gpgga_pub = self.create_publisher(Gpgga, 'gpgga')
 
         self.time_ref_source = self.get_parameter('time_ref_source').value
         self.use_RMC = self.get_parameter('useRMC').value
@@ -196,6 +198,21 @@ class Ros2NMEADriver(Node):
                 current_time_ref.time_ref = rclpy.time.Time(seconds=data['utc_time']).to_msg()
                 self.last_valid_fix_time = current_time_ref
                 self.time_ref_pub.publish(current_time_ref)
+
+            # Also publish GPGGA msg
+            current_gga = Gpgga()
+            if not math.isnan(data['utc_time']):
+                current_gga.utc_seconds = data['utc_time']
+            current_gga.lat = latitude
+            current_gga.lon = longitude
+            current_gga.lat_dir = data['latitude_direction']
+            current_gga.lon_dir = data['longitude_direction']
+            current_gga.gps_qual = data['fix_type']
+            current_gga.num_sats = data['num_satellites']
+            current_gga.hdop = data['hdop']
+            current_gga.alt = data['altitude']
+
+            self.gpgga_pub.publish(current_gga)
 
         elif not self.use_RMC and 'VTG' in parsed_sentence:
             data = parsed_sentence['VTG']
