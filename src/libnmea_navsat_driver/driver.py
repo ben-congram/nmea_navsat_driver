@@ -202,7 +202,7 @@ class Ros2NMEADriver(Node):
             # Also publish GPGGA msg
             current_gga = Gpgga()
             if not math.isnan(data['utc_time']):
-                current_gga.utc_seconds = data['utc_time']
+                current_gga.utc_seconds = 1.0 * data['utc_time']
             current_gga.lat = latitude
             current_gga.lon = longitude
             current_gga.lat_dir = data['latitude_direction']
