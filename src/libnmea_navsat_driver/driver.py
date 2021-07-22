@@ -58,7 +58,7 @@ class Ros2NMEADriver(Node):
         # epe = estimated position error
         self.default_epe_quality0 = self.declare_parameter('epe_quality0', 1000000).value
         self.default_epe_quality1 = self.declare_parameter('epe_quality1', 4.0).value
-        self.default_epe_quality2 = self.declare_parameter('epe_quality2', 0.1).value
+        self.default_epe_quality2 = self.declare_parameter('epe_quality2', 2.0).value
         self.default_epe_quality4 = self.declare_parameter('epe_quality4', 0.02).value
         self.default_epe_quality5 = self.declare_parameter('epe_quality5', 4.0).value
         self.default_epe_quality9 = self.declare_parameter('epe_quality9', 3.0).value
