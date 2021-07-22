@@ -47,14 +47,17 @@ def main(args=None):
     serial_baud = driver.declare_parameter('baud', 4800).value
 
     try:
+        print("Opening serial port connection to {0} with baud rate of {1}".format(serial_port, serial_baud))
         GPS = serial.Serial(port=serial_port, baudrate=serial_baud, timeout=2)
         try:
             while rclpy.ok():
                 data = GPS.readline().strip()
                 try:
-                    if isinstance(data, bytes):
-                        data = data.decode("utf-8")
-                    driver.add_sentence(data, frame_id)
+                    nmea_str = data.decode('utf-8')
+                    driver.add_sentence(nmea_str, frame_id)
+                except UnicodeError as e:
+                    driver.get_logger().warn("Skipped reading a line from the serial device because it could not be "
+                                             "decoded as an ASCII string. The bytes were {0}".format(data))
                 except ValueError as e:
                     driver.get_logger().warn(
                         "Value error, likely due to missing fields in the NMEA message. Error was: %s. "
